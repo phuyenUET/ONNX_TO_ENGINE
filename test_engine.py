@@ -77,17 +77,53 @@ def check_water_level_dynamic(frame, bottle_box, expected_offset_ratio=0.15, roi
     
     cv2.line(frame, (roi_x, detected_y), (roi_x + roi_w, detected_y), color, 2)
 
-def process_detections(output, input_shape, confidence_threshold=0.5):
-    # Assuming output format matches your detection model
-    # You may need to adjust this based on your model's output format
-    boxes = []
-    scores = []
-    class_ids = []
+def process_detections(output, input_shape, orig_shape, conf_thres=0.25, iou_thres=0.45):
+    """
+    Process YOLO model output
+    Args:
+        output: Raw output from YOLO model
+        input_shape: Model input shape (height, width)
+        orig_shape: Original image shape (height, width)
+        conf_thres: Confidence threshold
+        iou_thres: NMS IoU threshold
+    """
+    # Reshape output to [num_boxes, num_classes + 5]
+    # YOLO outputs: [x, y, w, h, conf, class_scores]
+    predictions = output[0].reshape(-1, 7)  # Adjust 7 based on your num_classes + 5
     
-    # Process the output to get boxes, scores, and class IDs
-    # This needs to be adjusted based on your model's output format
+    # Filter by confidence
+    conf = predictions[:, 4]
+    mask = conf > conf_thres
+    predictions = predictions[mask]
     
-    return boxes, scores, class_ids
+    if not len(predictions):
+        return [], [], []
+    
+    # Get boxes, scores and classes
+    boxes = predictions[:, :4]
+    scores = predictions[:, 4]
+    class_ids = predictions[:, 5].astype(np.int32)
+    
+    # Convert boxes to corners format (xywh to xyxy)
+    boxes[:, 2] = boxes[:, 0] + boxes[:, 2]
+    boxes[:, 3] = boxes[:, 1] + boxes[:, 3]
+    
+    # Scale boxes to original image size
+    scale_x = orig_shape[1] / input_shape[1]
+    scale_y = orig_shape[0] / input_shape[0]
+    boxes[:, [0, 2]] *= scale_x
+    boxes[:, [1, 3]] *= scale_y
+    
+    # Apply NMS
+    indices = cv2.dnn.NMSBoxes(boxes, scores, conf_thres, iou_thres)
+    if len(indices) > 0:
+        indices = indices.flatten()
+        boxes = boxes[indices]
+        scores = scores[indices]
+        class_ids = class_ids[indices]
+        return boxes, scores, class_ids
+    
+    return [], [], []
 
 def main():
     # Đường dẫn tới các file engine và video input
