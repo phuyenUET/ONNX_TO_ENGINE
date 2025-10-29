@@ -1,0 +1,27 @@
+# Colors
+BACKGROUND_COLOR = '#242424'
+LIGHT_BACKGROUND_COLOR = "#f3e1e1"
+WHITE = '#FFF'
+GREY = 'grey'
+BLUE = '#1f6aa5'
+GREEN = '#28a745'
+YELLOW = '#ffc107'
+RED = '#dc3545'
+DARK_GREY = '#4a4a4a'
+CLOSE_RED = '#8a0606'
+SLIDER_BG = '#64686b'
+
+DROPDOWN_MAIN_COLOR = '#444'
+DROPDOWN_HOVER_COLOR = '#333'
+DROPDOWN_MENU_COLOR = '#666'
+
+
+LABEL_FONT_SIZE = 14
+ENTRY_FONT_SIZE = 14
+
+BLUE = '#1f6aa5'
+DARK_GREY = '#4a4a4a'
+# Fonts
+MAIN_FONT = ("Helvetica", 14)
+BOLD_FONT = ("Helvetica", 16, "bold")
+TITLE_FONT = ("Helvetica", 20, "bold")
